@@ -1,0 +1,294 @@
+---
+import { Sidebar } from '../templates/SideBar';
+import { AppConfig } from '../utils/AppConfig';
+import type { PostItems } from '../types/Content';
+import Meta from './Meta.astro';
+import MobileHeader from '../components/MobileHeader/MobileHeader.astro';
+import ImageModal from '../components/ImageModal/ImageModal.astro';
+import '../styles/global.css';
+
+interface Props {
+	recents: PostItems[];
+	tags: string[];
+	meta?: {
+		title: string;
+		description: string;
+		canonical?: string;
+		post?: {
+			image?: string | null;
+			date: string;
+			modified_date?: string | null;
+		};
+		url?: string;
+	};
+}
+
+const { recents, tags, meta } = Astro.props;
+---
+
+<html lang="ja">
+	<head>
+		{meta ? (
+			<Meta
+				title={meta.title}
+				description={meta.description}
+				canonical={meta.canonical}
+				post={meta.post}
+				url={meta.url}
+			/>
+		) : (
+			<Meta
+				title={AppConfig.title}
+				description={AppConfig.description}
+			/>
+		)}
+	</head>
+	<body class="block">
+		<div class="antialiased w-full text-black md:px-0 bg-slate-100 lg:table lg:w-full">
+		<!-- 画像モーダル -->
+		<ImageModal />
+		
+		<!-- モバイル版ヘッダー（メニューと目次） -->
+		<MobileHeader recents={recents} tags={tags} />
+		
+		<!-- メインコンテンツ -->
+		<div class="mx-auto w-full sm:w-auto bg-slate-100 min-h-fit sm:min-h-screen lg:table-cell lg:align-top lg:w-[calc(100%-384px)] lg:px-3">
+			<div class="lg:border-b lg:border-gray-300 break-all text-center text-zinc-900 font-semibold block">
+				<!-- <div class="pt-4 pb-8 sm:pb-0">
+					<div class="font-semibold text-2xl text-gray-900">
+						<a href="/index.html">
+							{AppConfig.title}
+						</a>
+					</div>
+					<div class="text-sm sm:hidden">{AppConfig.description}</div>
+				</div> -->
+			</div>
+
+			<div class="text-base py-5 px-3 lg:px-0">
+				<slot />
+			</div>
+			
+			<!-- サイドバー（モバイル/タブレット：記事の下） -->
+			<div class="block lg:hidden mt-8 pb-12 mx-3">
+				<div>
+					<Sidebar recents={recents} tags={tags} client:load />
+				</div>
+			</div>
+		</div>
+
+		<!-- 右サイドバー（目次とサイドバー：デスクトップのみ） -->
+		<div class="hidden lg:table-cell lg:w-96 bg-slate-100 lg:align-top lg:h-screen">
+			<div class="p-5 h-full">
+				<!-- sticky 専用（overflow を持たせない） -->
+				<div class="sticky top-5">
+					<!-- 目次がある場合：目次（高さ5/8）+ サイドバー（高さ3/8、スクロール付き） -->
+					<div class="toc-wrapper">
+						<div class="toc-scroll-wrapper max-h-[calc((100vh-40px)*0.625)] overflow-y-auto mb-5 pr-2">
+							<slot name="toc" />
+						</div>
+						<div class="sidebar-wrapper max-h-[calc((100vh-40px)*0.375)] overflow-y-auto pr-2">
+							<Sidebar recents={recents} tags={tags} client:load />
+						</div>
+					</div>
+					<!-- 目次がない場合：サイドバーのみ（JavaScriptで切り替え） -->
+					<div class="sidebar-only-wrapper" style="display: none;">
+						<Sidebar recents={recents} tags={tags} client:load />
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
+		<script>
+			// 目次があるかどうかを判定してレイアウトを切り替え
+			function checkTocAndUpdateLayout() {
+				const tocWrapper = document.querySelector('.toc-wrapper');
+				const sidebarOnlyWrapper = document.querySelector('.sidebar-only-wrapper');
+				const tocContent = tocWrapper?.querySelector('.table-of-contents');
+				
+				if (!tocContent) {
+					// 目次がない場合
+					if (tocWrapper) (tocWrapper as HTMLElement).style.display = 'none';
+					if (sidebarOnlyWrapper) (sidebarOnlyWrapper as HTMLElement).style.display = 'block';
+				} else {
+					// 目次がある場合
+					if (tocWrapper) (tocWrapper as HTMLElement).style.display = 'block';
+					if (sidebarOnlyWrapper) (sidebarOnlyWrapper as HTMLElement).style.display = 'none';
+					
+					// サイドバーの高さを動的に調整
+					adjustSidebarHeight();
+				}
+			}
+			
+			// サイドバーの高さを目次の高さに応じて調整
+			function adjustSidebarHeight() {
+				const tocScrollWrapper = document.querySelector('.toc-scroll-wrapper');
+				const sidebarWrapper = document.querySelector('.sidebar-wrapper');
+				
+				if (!tocScrollWrapper || !sidebarWrapper) return;
+				
+				// 利用可能な高さ（100vh - 40px）
+				const availableHeight = window.innerHeight - 40;
+				
+				// 目次の実際の高さを取得（スクロール可能な要素のscrollHeight）
+				const tocHeight = tocScrollWrapper.scrollHeight;
+				// 目次の最大高さ（5/8）
+				const maxTocHeight = availableHeight * 0.625;
+				// 実際に使用される目次の高さ（コンテンツの高さと最大高さの小さい方）
+				const actualTocHeight = Math.min(tocHeight, maxTocHeight);
+				
+				// マージン（mb-5 = 1.25rem = 20px）
+				const margin = 20;
+				
+				// サイドバーに割り当てる高さ = 利用可能な高さ - 目次の高さ - マージン
+				const sidebarHeight = availableHeight - actualTocHeight - margin;
+				
+				// サイドバーの最大高さを設定
+				(sidebarWrapper as HTMLElement).style.maxHeight = `${sidebarHeight}px`;
+			}
+			
+			// DOMContentLoaded時と、少し遅延してからもチェック（クライアント側コンポーネントのレンダリングを待つ）
+			document.addEventListener('DOMContentLoaded', () => {
+				checkTocAndUpdateLayout();
+				// クライアント側コンポーネントのレンダリングを待つ
+				setTimeout(checkTocAndUpdateLayout, 500);
+				setTimeout(checkTocAndUpdateLayout, 1000);
+			});
+			
+			// ページが既に読み込まれている場合
+			if (document.readyState === 'complete' || document.readyState === 'interactive') {
+				checkTocAndUpdateLayout();
+				setTimeout(checkTocAndUpdateLayout, 500);
+				setTimeout(checkTocAndUpdateLayout, 1000);
+			}
+			
+			// ウィンドウリサイズ時にもサイドバーの高さを再調整
+			window.addEventListener('resize', () => {
+				const tocContent = document.querySelector('.toc-wrapper .table-of-contents');
+				if (tocContent) {
+					adjustSidebarHeight();
+				}
+			});
+			
+			// コードブロックのコピー機能
+			function initCodeBlockCopyButtons() {
+				const copyButtons = document.querySelectorAll('.code-block-copy-button');
+				
+				copyButtons.forEach((button) => {
+					button.addEventListener('click', async () => {
+						const wrapper = button.closest('.code-block-wrapper');
+						if (!wrapper) return;
+						
+						// コードを取得
+						let codeText = '';
+						
+						// Shikiでハイライトされたコードの場合
+						const shikiCode = wrapper.querySelector('.shiki code');
+						if (shikiCode) {
+							// すべてのテキストノードを取得
+							const textNodes: string[] = [];
+							const walker = document.createTreeWalker(
+								shikiCode,
+								NodeFilter.SHOW_TEXT,
+								null
+							);
+							let node;
+							while ((node = walker.nextNode())) {
+								if (node.textContent) {
+									textNodes.push(node.textContent);
+								}
+							}
+							codeText = textNodes.join('');
+							
+							// テキストノードが見つからない場合、innerTextを使用
+							if (!codeText) {
+								codeText = (shikiCode as HTMLElement).innerText || '';
+							}
+						}
+						// 通常のコードブロックの場合
+						else {
+							const codeElement = wrapper.querySelector('pre code') || wrapper.querySelector('code');
+							if (codeElement) {
+								codeText = (codeElement as HTMLElement).innerText || codeElement.textContent || '';
+							}
+						}
+						
+						// クリップボードにコピー
+						try {
+							await navigator.clipboard.writeText(codeText);
+							
+							// コピー成功時のフィードバック
+							button.classList.add('copied');
+							setTimeout(() => {
+								button.classList.remove('copied');
+							}, 1500);
+						} catch (err) {
+							console.error('コピーに失敗しました:', err);
+						}
+					});
+				});
+			}
+			
+			// コードブロックの折り返し機能
+			function initCodeBlockWrapButtons() {
+				const wrapButtons = document.querySelectorAll('.code-block-wrap-button');
+				console.log('折り返しボタンの数:', wrapButtons.length);
+				
+				wrapButtons.forEach((button) => {
+					const wrapper = button.closest('.code-block-wrapper');
+					if (!wrapper) {
+						console.log('ラッパーが見つかりません');
+						return;
+					}
+					
+					// 横スクロールがあるかチェック
+					const codeElement = wrapper.querySelector('.shiki') || wrapper.querySelector('pre:not(.shiki)');
+					if (codeElement) {
+						const hasHorizontalScroll = codeElement.scrollWidth > codeElement.clientWidth;
+						console.log('横スクロールチェック:', {
+							scrollWidth: codeElement.scrollWidth,
+							clientWidth: codeElement.clientWidth,
+							hasHorizontalScroll
+						});
+						if (!hasHorizontalScroll) {
+							// 横スクロールがない場合はボタンを非表示
+							(button as HTMLElement).style.display = 'none';
+							return;
+						}
+					} else {
+						console.log('コード要素が見つかりません');
+					}
+					
+					button.addEventListener('click', (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						console.log('折り返しボタンがクリックされました');
+						// 折り返しモードを切り替え
+						wrapper.classList.toggle('wrapped');
+						button.classList.toggle('active');
+						console.log('wrappedクラス:', wrapper.classList.contains('wrapped'));
+						console.log('activeクラス:', button.classList.contains('active'));
+					});
+				});
+			}
+			
+			// 初期化関数
+			function initCodeBlocks() {
+				console.log('コードブロックを初期化中...');
+				initCodeBlockCopyButtons();
+				initCodeBlockWrapButtons();
+			}
+			
+			// DOMContentLoaded時に各種機能を初期化
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initCodeBlocks);
+			} else {
+				// ページが既に読み込まれている場合
+				initCodeBlocks();
+			}
+			
+			// 少し遅延してからも初期化（動的に追加されるコンテンツに対応）
+			setTimeout(initCodeBlocks, 100);
+			setTimeout(initCodeBlocks, 500);
+		</script>
+	</body>
+</html>

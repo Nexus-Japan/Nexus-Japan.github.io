@@ -1,0 +1,691 @@
+@tailwind base;
+
+@layer base {
+	a {
+		@apply text-blue-700 hover:underline;
+	}
+}
+
+@tailwind components;
+
+@tailwind utilities;
+
+$code-block-bg: #1a2638;
+
+@layer utilities {
+	.content-title {
+		@apply px-16 py-1 bg-[position:15px_center] bg-no-repeat bg-[length:50px] bg-[url('/assets/svgs/network2.svg')] text-gray-800 relative text-center font-bold text-3xl m-0 mb-6 p-1 border-solid border-[2.4px] border-slate-600 rounded-xl bg-white after:border-transparent after:border-t-white after:border-0 after:border-t-[8px] after:border-r-[8px] after:border-solid after:content-[''] after:absolute after:right-[32px] after:bottom-[-8px] after:w-0 after:h-0 before:border-transparent before:border-t-slate-600 before:border-0 before:border-t-[14px] before:border-r-[14px] before:border-solid before:content-[''] before:absolute before:right-[29px] before:bottom-[-14px] before:w-0 before:h-0;
+		
+		// SP版の調整
+		@media (max-width: 1023px) {
+			@apply text-[1.375rem];
+			background-position: 8px center; // 左中央に配置
+			background-size: 40px; // アイコンサイズ（40px）
+			padding-left: 3rem; // アイコン分のスペースを調整（40px + 余白）
+			padding-right: 1rem;
+			text-align: left; // 左揃えに変更
+		}
+	}
+	.content-date {
+		@apply text-center text-sm mt-[-14px];
+	}
+	.photo-space {
+		@apply float-none m-auto p-2 w-96 bg-white max-w-full;
+	}
+	.photo-space-detail {
+		@apply text-center w-full text-xs;
+	}
+
+	.markdown-content {
+		@apply break-words p-8 rounded-lg shadow-md border-0 bg-white;
+		margin: 0.5rem 0rem; 
+		box-sizing: border-box;
+		// モバイル/タブレット（サイドバーなし）: 画面幅
+		max-width: 100vw;
+		
+		// SP版の余白を1/3に調整
+		@media (max-width: 1023px) {
+			padding: 0.67rem; // p-8の1/3 (2rem / 3 ≈ 0.67rem)
+		}
+		
+		// デスクトップ（サイドバーあり、lg以上）: 画面幅 - サイドバー幅(384px lg-96)
+		@media (min-width: 1024px) {
+			margin: 0.5rem 0rem 1rem 0.5rem;
+			max-width: calc(100vw - 384px);
+		}
+		
+		img {
+			max-width: 50vw;
+			max-height: 50vh;
+			width: auto;
+			height: auto;
+			display: block;
+			margin: 1rem auto;
+			cursor: pointer;
+			transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+			
+			&:hover {
+				opacity: 0.9;
+				transform: scale(1.02);
+			}
+		}
+			
+		h2 {
+			@apply mt-12 mb-4 text-3xl font-bold py-2 pl-16 bg-no-repeat bg-[length:50px] bg-[url('/assets/svgs/network2.svg')];
+			background-position: left center; // 左中央に配置
+			
+			// SP版の調整
+			@media (max-width: 1023px) {
+				@apply text-[1.375rem] mt-8 mb-2;
+				background-position: left center; // 左中央に配置
+				background-size: 40px; // アイコンサイズ（40px）
+				padding-left: 3rem; // アイコン分のスペースを調整（40px + 余白）
+			}
+		}
+		h3 {
+			@apply text-xl font-bold border-l-4 border-b border-gray-700 border-solid pl-1 my-4;
+			
+			// SP版の調整（h2よりやや小さく、標準テキストより大きく）
+			@media (max-width: 1023px) {
+				@apply text-lg; // text-xl (1.25rem) → text-lg (1.125rem)
+			}
+		}
+		h4 {
+			@apply text-lg border-l-2 border-slate-600 border-solid pl-1 font-semibold;
+
+			// SP版の調整
+			@media (max-width: 1023px) {
+				@apply text-[1.075rem];
+			}
+		}
+		ul li {
+			@apply list-[circle];
+		}
+		ul {
+			@apply my-6 ml-10;
+			@media (max-width: 1023px) {
+				@apply my-3 ml-6;
+			}
+		}
+		ol {
+			@apply my-6 ml-10;
+			list-style-type: decimal;
+			@media (max-width: 1023px) {
+				@apply my-3 ml-6;
+			}
+		}
+		ol li {
+			@apply list-decimal;
+		}
+		p {
+			@apply my-6;
+		}
+		hr {
+			border: none;
+			border-top: 2px solid #b5b5b5;
+			margin: 1.5rem 0;
+			@media (max-width: 1023px) {
+				margin: 1rem 0;
+			}
+		}
+		blockquote {
+			font-style: italic;
+			padding: 0;
+			text-align: center;
+			font-size: smaller;
+		}
+		p code {
+			background-color: #fafafa;
+			font-style: italic;
+			border-width: 1px;
+			border-color: #dedede;
+			padding: 0.1rem;
+		}
+		.preshiki {
+			font-size: 0.85rem;
+			color: #24292f;
+			border-radius: 0.375rem 0.375rem 0 0;
+			border-color: #d0d7de #d0d7de white #d0d7de;
+			border-width: 1px 1px 0px 1px;
+			border-style: solid;
+			width: auto;
+			padding: 8px 8px 8px 16px;
+			margin: 8px 4px 0px 4px;
+			background-color: #f6f8fa;
+			&.alert {
+				border-color: #d60a34 #d60a34 white #d60a34;
+				background-color: #feebee;
+			}
+			&.warn {
+				border-color: #f7a535 #f7a535 white #f7a535;
+				background-color: #fdf9e2;
+			}
+			+.shiki {
+				border-radius: 0 0 0.375rem 0.375rem;
+				padding: 4px;
+				width: auto;
+			}
+		}
+		.code-block-wrapper {
+			margin: 1.5rem 0;
+			border-radius: 0.25rem;
+			overflow: hidden;
+			max-width: 100%;
+			position: relative;
+			// background-color: $code-block-bg;
+		}
+		
+		.code-block-wrap-button,
+		.code-block-copy-button {
+			position: absolute;
+			top: 0.5rem;
+			background-color: #323e52cc;
+			border: 1px solid #ffffff1a;
+			border-radius: 0.25rem;
+			padding: 0.375rem;
+			cursor: pointer;
+			opacity: 0;
+			transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+			z-index: 10;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			color: #e6e6e6;
+			font-size: 0.75rem;
+			font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+			
+			&:hover {
+				background-color: #323e52;
+			}
+		}
+		
+		.code-block-wrap-button {
+			right: 2.5rem; // コピーボタンの左側に配置
+			
+			.wrap-icon {
+				font-size: 1rem;
+				line-height: 1;
+				flex-shrink: 0;
+				display: inline-block;
+			}
+			
+			// スクロールモードのアイコン（turn-downを90°右回転）
+			.wrap-icon-scroll {
+				transform: rotate(90deg);
+				display: inline-block;
+			}
+			
+			// 折り返しモードのアイコン（right-long）
+			.wrap-icon-wrapped {
+				display: none !important;
+			}
+			
+			&.active {
+				background-color: #323e52;
+				
+				.wrap-icon-scroll {
+					display: none !important;
+				}
+				
+				.wrap-icon-wrapped {
+					display: inline-block !important;
+				}
+			}
+		}
+		
+		.code-block-copy-button {
+			right: 0.5rem;
+			
+			.copy-icon {
+				font-size: 1rem;
+				line-height: 1;
+				flex-shrink: 0;
+			}
+			
+			.copy-feedback {
+				display: none;
+				color: #e9e9e9;
+				font-weight: bold;
+			}
+			
+			&.copied {
+				.copy-icon {
+					display: none;
+				}
+				
+				.copy-feedback {
+					display: inline;
+				}
+			}
+		}
+		
+		// ラベルがある場合、ボタンをラベルの下（コードブロックの開始位置）に配置
+		// ラベルの高さ（padding: 0.3rem * 2 + font-size: 0.75rem * line-height）を考慮
+		.code-block-wrapper:has(.code-block-label) .code-block-wrap-button,
+		.code-block-wrapper:has(.code-block-label) .code-block-copy-button {
+			top: calc(0.6rem + 0.75rem * 1.2 + 0.75rem);
+		}
+		
+		.code-block-wrapper:hover .code-block-wrap-button,
+		.code-block-wrapper:hover .code-block-copy-button {
+			opacity: 1;
+		}
+		
+		// 折り返しモードのスタイル
+		.code-block-wrapper.wrapped {
+			.shiki {
+				overflow-x: visible !important;
+				overflow-y: visible !important;
+			}
+			
+			.shiki pre {
+				overflow-x: visible !important;
+				overflow-y: visible !important;
+				white-space: pre-wrap !important;
+			}
+			
+			.shiki code {
+				white-space: pre-wrap !important;
+				word-break: break-all;
+				overflow-x: visible !important;
+				overflow-y: visible !important;
+			}
+			
+			// Shikiの行構造も折り返しに対応
+			.shiki code > span.line {
+				white-space: pre-wrap !important;
+				word-break: break-all;
+				// display: block;
+			}
+			
+			// 通常のpre要素も折り返しに対応
+			pre:not(.shiki) {
+				overflow-x: visible !important;
+				overflow-y: visible !important;
+				white-space: pre-wrap !important;
+			}
+			
+			pre:not(.shiki) code {
+				white-space: pre-wrap !important;
+				word-break: break-all;
+				overflow-x: visible !important;
+			}
+		}
+		
+		.code-block-label {
+			font-size: 0.75rem;
+			color: #e6e6e6;
+			background-color: #323e52;
+			padding: 0.3rem 0.5rem;
+			border-bottom: 1px solid #30363d;
+			border-radius: 0.25rem 0.25rem 0 0;
+			font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+			display: inline-block;
+			align-items: center;
+		}
+		
+		.code-block-wrapper .shiki {
+			margin: 0;
+			border-radius: 0 0.25rem 0.25rem 0.25rem;
+			padding: 1.75rem 0 1.25rem 0;
+			background-color: $code-block-bg;
+			border: none;
+			box-shadow: none;
+			overflow-x: auto;
+			overflow-y: hidden;
+			font-size: 0.875rem;
+			line-height: 1.6;
+			display: block;
+		}
+		
+		.code-block-wrapper .shiki pre {
+			margin: 0;
+			padding: 0;
+			overflow-x: auto;
+			overflow-y: hidden;
+			display: block;
+		}
+		
+		.code-block-wrapper .shiki code {
+			white-space: pre;
+			display: block;
+			// diff形式の場合、tableレイアウトを使用
+			&[data-diff-mode="with-bg"] {
+				display: table;
+				width: 100%;
+			}
+		}
+		
+		// すべての行の最後のspan要素に右側の余白を追加（最も長い行の右端に余白が表示される）
+		.code-block-wrapper .shiki code > span.line > span:last-child {
+			margin-right: 1rem;
+			display: inline-block;
+		}
+		
+		// すべての行の最後に余白を追加（フォールバック）
+		.code-block-wrapper .shiki code > span.line::after {
+			// content: '';
+			display: inline-block;
+			width: 1rem;
+			height: 0;
+		}
+		
+		.code-block-wrapper pre:not(.shiki) {
+			margin: 0;
+			border-radius: 0;
+			padding: 1rem;
+			background-color: $code-block-bg !important;
+			border: none;
+			box-shadow: none;
+			overflow-x: auto;
+			overflow-y: hidden;
+			font-size: 0.875rem;
+			line-height: 1.6;
+			color: #d4d4d4;
+			display: block;
+		}
+		
+		.code-block-wrapper pre:not(.shiki) code {
+			color: #d4d4d4;
+			background: transparent;
+			white-space: pre;
+			display: block;
+		}
+		
+		.shiki {
+			border-radius: 0.5rem;
+			padding: 1rem;
+			margin: 1.5rem 0;
+			box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+				0 2px 4px -2px rgb(0 0 0 / 0.1);
+			overflow-x: auto;
+			font-size: 0.875rem;
+			line-height: 1.6;
+			background-color: $code-block-bg !important;
+			border: none;
+		}
+		code {
+			counter-reset: code-step-counter;
+			.line::before {
+				display: inline-block;
+				content: counter(code-step-counter);
+				counter-increment: code-step-counter;
+				width: 2.5rem;
+				margin-right: 0.75rem;
+				text-align: right;
+				font-variant-numeric: slashed-zero;
+				color: #6e7781;
+				padding-right: 0.25rem;
+			}
+		}
+		
+		// diff形式のコードブロックスタイル（with-bgモード: {言語}:diff形式）
+		.shiki[data-diff-mode="with-bg"] {
+			code {
+				display: table;
+				width: 100%;
+				.line.diff-line-remove {
+					background-color: #ff80954d;
+					display: table-row;
+					position: relative;
+					margin: 0;
+					padding: 0;
+					// 行番号（::before）には背景を付けない
+					&::before {
+						background-color: $code-block-bg !important;
+						position: relative;
+						z-index: 1;
+					}
+					// -記号の文字色を変更（最初のspan要素のテキストノードまたはspan要素自体）
+					> span:first-child {
+						color: #ff8095 !important;
+					}
+				}
+				.line.diff-line-add {
+					background-color: #8cdf4c42;
+					display: table-row;
+					position: relative;
+					margin: 0;
+					padding: 0;
+					// 行番号（::before）には背景を付けない
+					&::before {
+						background-color: $code-block-bg !important;
+						position: relative;
+						z-index: 1;
+					}
+					// +記号の文字色を変更（最初のspan要素のテキストノードまたはspan要素自体）
+					> span:first-child {
+						color: #8bdf4c !important;
+					}
+				}
+			}
+		}
+		
+		.code-block-wrapper .shiki[data-diff-mode="with-bg"] {
+			code {
+				display: table;
+				width: 100%;
+				.line.diff-line-remove {
+					background-color: #ff80954d;
+					display: table-row;
+					position: relative;
+					margin: 0;
+					padding: 0;
+					// 行番号（::before）には背景を付けない
+					&::before {
+						background-color: $code-block-bg !important;
+						position: relative;
+						z-index: 1;
+					}
+					// -記号の文字色を変更（最初のspan要素のテキストノードまたはspan要素自体）
+					> span:first-child {
+						color: #ff8095 !important;
+					}
+				}
+				.line.diff-line-add {
+					background-color: #8cdf4c42;
+					display: table-row;
+					position: relative;
+					margin: 0;
+					padding: 0;
+					// 行番号（::before）には背景を付けない
+					&::before {
+						background-color: $code-block-bg !important;
+						position: relative;
+						z-index: 1;
+					}
+					// +記号の文字色を変更（最初のspan要素のテキストノードまたはspan要素自体）
+					> span:first-child {
+						color: #8bdf4c !important;
+					}
+				}
+			}
+		}
+		
+		// diff形式のコードブロックスタイル（text-onlyモード: diff言語）
+		.shiki[data-diff-mode="text-only"] {
+			code {
+				.line.diff-text-remove {
+					// -記号の文字色を変更
+					> span:first-child {
+						color: #ff8095 !important;
+					}
+				}
+				.line.diff-text-add {
+					// +記号の文字色を変更
+					> span:first-child {
+						color: #8bdf4c !important;
+					}
+				}
+			}
+		}
+		
+		.code-block-wrapper .shiki[data-diff-mode="text-only"] {
+			code {
+				.line.diff-text-remove {
+					// -記号の文字色を変更
+					> span:first-child {
+						color: #ff8095 !important;
+					}
+				}
+				.line.diff-text-add {
+					// +記号の文字色を変更
+					> span:first-child {
+						color: #8bdf4c !important;
+					}
+				}
+			}
+		}
+		.note {
+			&.warn {
+			background: #fdf9e2;
+			border-radius: 8px;
+			padding: 16px;
+			margin: 24px 0;
+				.shiki {
+					border-color: #f7a535;
+				}
+			}
+			&.alert {
+				background: #feebee;
+				border-radius: 8px;
+				padding: 16px;
+				margin: 24px 0;
+				.shiki {
+					border-color: #d60a34;
+				}
+			}
+		}
+		.plantuml {
+			@apply my-4 max-w-full overflow-auto;
+			// @apply shadow-md border-slate-300 border-solid border rounded-md;
+		}
+		.mermaid {
+			@apply my-0 max-w-full overflow-auto;
+			// @apply shadow-md border-slate-300 border-solid border rounded-md;
+		}
+		.math-display {
+			@apply p-2 max-w-full w-fit overflow-x-auto whitespace-nowrap break-keep block;
+			//  @apply shadow-md border-slate-300 border-solid border rounded-md;
+		}
+		.MathJax {
+			svg {
+				display: unset;
+			}
+		}
+		// テーブルを横スクロール可能にするラッパー
+		.table-container {
+			@apply my-6;
+			width: 100%;
+			overflow: hidden;
+			// 横スクロールを有効化する場合は以下のコメントを外す
+			// -webkit-overflow-scrolling: touch;
+			// overflow-x: auto;
+		}
+		table {
+			@apply border-collapse border border-gray-300;
+			width: auto;
+			max-width: 100%;
+			border-spacing: 0;
+			margin: 0;
+			table-layout: auto;
+		}
+		thead {
+			@apply bg-gray-50;
+		}
+		th,
+		td {
+			@apply border border-gray-300 px-4 py-2;
+			word-wrap: break-word;
+			overflow-wrap: break-word;
+			word-break: break-word;
+			white-space: normal;
+		}
+		th {
+			@apply font-semibold text-left;
+			white-space: nowrap;
+		}
+	}
+	
+	// モバイル版ヘッダーのスタイル
+	.mobile-menu-button,
+	.mobile-toc-button {
+		transition: background-color 0.2s;
+	}
+	
+	.mobile-menu-overlay {
+		transition: opacity 0.3s ease-in-out;
+	}
+	
+	.mobile-menu-panel {
+		transition: transform 0.3s ease-in-out;
+		transform: translateX(100%);
+	}
+	
+	.mobile-menu-overlay:not(.hidden) .mobile-menu-panel {
+		transform: translateX(0);
+	}
+	
+	.mobile-menu-close {
+		transition: color 0.2s;
+		cursor: pointer;
+	}
+	
+	.mobile-menu-content {
+		a {
+			transition: background-color 0.2s;
+		}
+	}
+	
+	.mobile-toc-content {
+		.table-of-contents {
+			box-shadow: none;
+			padding: 0;
+			background: transparent;
+			margin: 0;
+			width: 100%;
+		}
+		
+		.table-of-contents-header {
+			display: none;
+		}
+		
+		// 目次のネスト表示を維持
+		.table-of-contents-item {
+			margin: 0;
+			padding: 0;
+		}
+		
+		.table-of-contents-item-level-2 {
+			padding-left: 0;
+		}
+		
+		.table-of-contents-item-level-3 {
+			padding-left: 16px;
+		}
+		
+		.table-of-contents-item-level-4 {
+			padding-left: 32px;
+		}
+		
+		.table-of-contents-link {
+			display: block;
+			padding: 6px 0;
+			font-size: 13px;
+			color: #6b7280;
+			text-decoration: none;
+			transition: color 0.2s;
+			line-height: 1.5;
+			text-align: left;
+		}
+		
+		.table-of-contents-link:hover {
+			color: #2563eb;
+		}
+		
+		.table-of-contents-item-active .table-of-contents-link {
+			color: #2563eb;
+			font-weight: 500;
+		}
+	}
+}

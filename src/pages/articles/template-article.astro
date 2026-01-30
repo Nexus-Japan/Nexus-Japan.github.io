@@ -1,0 +1,153 @@
+---
+import { format } from 'date-fns';
+import Main from '../../layouts/Main.astro';
+import { Content } from '../../content/Content';
+import { PostPagination } from '../../pagination/PostPagination';
+import { TableOfContents } from '../../components/TableOfContents/TableOfContents';
+import ReactHelloWorld from '../../components/ReactHelloWorld/ReactHelloWorld';
+import CodeBlock from '../../components/CodeBlock/CodeBlock.astro';
+import {
+	getAllPostsIncludeTSX,
+	getRecentPosts,
+	getTags,
+} from '../../utils/Content';
+import { markdownToHtml } from '../../utils/Markdown';
+import type { PostItems } from '../../types/Content';
+
+// フロントマター（YAML形式のメタデータをTypeScript変数として定義）
+// Content.tsで読み取るために、これらの値はYAMLとしても記述可能ですが、
+// AstroではTypeScriptコードとして記述します
+const title = "テンプレート記事（Astro版）";
+const date = "2024-01-01T12:00:00+0900";
+const description = "これはAstro形式の記事のテンプレートです。Reactコンポーネントを含む複雑な記事を作成できます。";
+const tags = ['Template', 'Astro', 'React'];
+// @ts-ignore - Content.tsで読み取られるため保持（未使用警告を無視）
+const category = 'blog';
+// @ts-ignore - Content.tsで読み取られるため保持（未使用警告を無視）
+const draft = true;
+
+// 前後の記事を取得
+const recents = getRecentPosts(['title', 'date', 'slug']);
+const mainTags = getTags();
+const posts = getAllPostsIncludeTSX(['title', 'date', 'slug']);
+const currentNumber = posts.map(({ slug }) => slug).indexOf('articles/template-article');
+const prevPost: PostItems | null = posts[currentNumber - 1] ?? null;
+const nextPost: PostItems | null = posts[currentNumber + 1] ?? null;
+
+// 記事のスラッグ（画像パス変換に使用）
+const articleSlug = 'articles/template-article';
+
+// Markdownコンテンツ
+const markdownContent = `
+これはAstro形式の記事のテンプレートです。
+このファイルをコピーして新しい記事を作成できます。
+
+## 使い方
+
+1. このファイルをコピーして新しいファイル名に変更してください
+2. フロントマター（\`---\`で囲まれた部分）の変数を編集してください
+3. コンテンツ部分を編集してください
+
+## Reactコンポーネントの使用
+
+Astroファイル内でReactコンポーネントを使用できます。
+
+## フロントマターの説明
+
+- \`title\`: 記事のタイトル（文字列）
+- \`date\`: 公開日時（ISO 8601形式の文字列）
+- \`description\`: 記事の説明（SEO用、文字列）
+- \`tags\`: タグのリスト（配列）
+- \`category\`: カテゴリ（文字列）
+- \`draft\`: 下書きフラグ（\`true\`で非公開、\`false\`で公開）
+
+## Markdown記法
+
+通常のMarkdown記法が使用できます。
+
+- **太字**
+- *斜体*
+- \`コード\`
+- [リンク](https://example.com)
+
+## コードブロック
+
+\`\`\`typescript
+// コードブロックも使用可能
+const example = "Hello, World!";
+\`\`\`
+
+## 画像
+
+画像も使用できます：
+
+![画像の説明](sample.png)
+`;
+
+// MarkdownをHTMLに変換（コードブロックのハイライトと画像パス変換を含む）
+const content = await markdownToHtml(markdownContent, articleSlug);
+---
+
+<Main
+	recents={recents}
+	tags={mainTags}
+	meta={{
+		title,
+		description,
+		post: {
+			date,
+			modified_date: null,
+			image: null,
+		},
+		url: '/articles/template-article/',
+	}}
+>
+	<h1 class="content-title">{title}</h1>
+	<div class="content-date">
+		公開: {format(new Date(date), 'yyyy/MM/dd')}
+	</div>
+
+	<ul class="flex flex-row flex-wrap list-none p-0 m-2 justify-start">
+		{tags.map((tag) => (
+			<li
+				class="px-2 py-1 m-1 rounded-full overflow-hidden shadow-md border-0 bg-white w-fit break-all"
+			>
+				<a href={`/tag/${tag}/index.html`}>
+					#{tag}
+				</a>
+			</li>
+		))}
+	</ul>
+
+	<Content client:load>
+		<Fragment set:html={content} />
+		<!-- Reactコンポーネントなど、Markdown以外の要素はここに追加 -->
+		<div style="margin-top: 2rem;">
+			<ReactHelloWorld client:load>
+				こんな感じでReactコンポーネントが使えます！✨
+			</ReactHelloWorld>
+		</div>
+		
+		<!-- CodeBlockコンポーネントの使用例 -->
+		<h2>CodeBlockコンポーネントの使用例</h2>
+		<p>Astroファイル内で直接コードブロックを書けます：</p>
+		<CodeBlock lang="typescript" code={`// コードブロックも使用可能
+const example = "Hello, World!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+console.log(example);`} />
+
+		<p>ファイル名を指定してコードブロックを書けます：</p>
+		<CodeBlock lang="typescript" filename="sample.ts" code={`// コードブロックも使用可能
+const example = "Hello, World!";
+console.log(example);`} />
+		
+		<p>言語を指定しない場合は、そのまま表示されます：</p>
+		<CodeBlock code="プレーンテキストのコードブロック" />
+	</Content>
+
+	<PostPagination nextPost={nextPost} prevPost={prevPost} client:load />
+	
+	<!-- デスクトップ用の目次（右サイドバー） -->
+	<Fragment slot="toc">
+		<TableOfContents client:load />
+	</Fragment>
+</Main>
